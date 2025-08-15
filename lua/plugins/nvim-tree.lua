@@ -6,7 +6,7 @@ local function on_attach(bufnr)
         return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
     end
     
-    -- Define nvim-tree specific keymappings
+    -- Define nvim-tree specific keymappings. These will only be active inside the nvim-tree buffer
     vim.keymap.set("n", "l", api.node.open.edit, opts("Open"))
     vim.keymap.set("n", "v", api.node.open.vertical, opts("Open in new vertical split"))
     vim.keymap.set("n", "h", api.node.navigate.parent_close, opts("Close directory"))
