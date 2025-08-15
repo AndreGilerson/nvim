@@ -22,5 +22,9 @@ map("i", "<c-j>", "<esc><c-w>j", {desc = "Easier window movement, to the down"})
 map("i", "<c-k>", "<esc><c-w>k", {desc = "Easier window movement, to the up"})
 map("i", "<c-l>", "<esc><c-w>l", {desc = "Easier window movement, to the right"})
 
+-- Easier window navigation, normal mode
+map("n", "L", ":bnext 1<CR>", {desc = "Switch to next buffer"})
+map("n", "H", ":bprevious 1<CR>", {desc = "Switch to previous buffer"})
+
 -- Nvim-tree specific
 map("n", "<c-e>", ":NvimTreeToggle<CR>")

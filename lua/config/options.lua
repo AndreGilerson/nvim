@@ -61,3 +61,6 @@ vim.opt.termguicolors = true
 
 -- Keep multiple buffers and open multiple buffers
 hidden = true
+
+-- Always show tabline
+vim.o.showtabline = 2
