@@ -22,7 +22,7 @@ return {
         "nvim-tree/nvim-web-devicons",
     },
     config = function()
-        require("nvim-tree").setup {
+        require("nvim-tree").setup({
             sort = {
                 sorter = "case_sensitive",
             },
@@ -33,6 +33,6 @@ return {
                 dotfiles = true,
             },
             on_attach = on_attach,
-        }
+        })
     end,
 }

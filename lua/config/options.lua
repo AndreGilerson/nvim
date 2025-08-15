@@ -58,3 +58,6 @@ vim.g.loaded_netrwPlugin = 1
 
 -- Enable 24-bit colour
 vim.opt.termguicolors = true
+
+-- Keep multiple buffers and open multiple buffers
+hidden = true
