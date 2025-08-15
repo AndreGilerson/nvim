@@ -1,3 +1,4 @@
+-- Helper function to easiert create new keymappings
 function map(mode, lhs, rhs, opts)
     local options = { noremap = true }
     if opts then
@@ -6,4 +7,8 @@ function map(mode, lhs, rhs, opts)
     vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
-map("i", "jk", "<esc>")
+-- Global, non plugin specific keymaps
+map("i", "jk", "<esc>", {desc = "Easier escape inside insert mode"})
+
+-- Nvim-tree specific
+map("n", "<c-e>", ":NvimTreeToggle<CR>")

@@ -48,3 +48,13 @@ vim.opt.scrolloff = 5
 
 -- Timeout length for multi key hotkeys
 vim.opt.timeoutlen = 100
+
+-- optionally enable 24-bit colour
+vim.opt.termguicolors = true
+
+-- disable netrw for nvim-tree
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- Enable 24-bit colour
+vim.opt.termguicolors = true
