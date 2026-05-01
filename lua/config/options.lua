@@ -68,3 +68,47 @@ hidden = true
 
 -- Always show tabline
 vim.o.showtabline = 2
+
+-- Show a vertical line at column 80 for programming files
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = {
+		"c",
+		"cpp",
+		"python",
+		"rust",
+		"go",
+		"java",
+		"javascript",
+		"typescript",
+		"javascriptreact",
+		"typescriptreact",
+		"lua",
+		"sh",
+		"bash",
+		"zsh",
+		"fish",
+		"ruby",
+		"php",
+		"perl",
+		"haskell",
+		"ocaml",
+		"elixir",
+		"erlang",
+		"scala",
+		"kotlin",
+		"swift",
+		"cs",
+		"fsharp",
+		"clojure",
+		"nix",
+		"vim",
+		"sql",
+		"r",
+		"julia",
+		"dart",
+		"zig",
+	},
+	callback = function()
+		vim.opt_local.colorcolumn = "80"
+	end,
+})
