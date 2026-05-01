@@ -22,6 +22,13 @@ map("i", "<c-j>", "<esc><c-w>j", {desc = "Easier window movement, to the down"})
 map("i", "<c-k>", "<esc><c-w>k", {desc = "Easier window movement, to the up"})
 map("i", "<c-l>", "<esc><c-w>l", {desc = "Easier window movement, to the right"})
 
+-- Easier window navigation, terminal mode
+map("t", "<c-h>", [[<c-\><c-n><c-w>h]], {desc = "Easier window movement, to the left"})
+map("t", "<c-j>", [[<c-\><c-n><c-w>j]], {desc = "Easier window movement, to the down"})
+map("t", "<c-k>", [[<c-\><c-n><c-w>k]], {desc = "Easier window movement, to the up"})
+map("t", "<c-l>", [[<c-\><c-n><c-w>l]], {desc = "Easier window movement, to the right"})
+map("t", "<c-/>", [[<c-\><c-n>:ToggleTerm<CR>]], {desc = "Toggle terminal from terminal mode"})
+
 -- Easier window navigation, normal mode
 map("n", "L", ":bnext 1<CR>", {desc = "Switch to next buffer"})
 map("n", "H", ":bprevious 1<CR>", {desc = "Switch to previous buffer"})
