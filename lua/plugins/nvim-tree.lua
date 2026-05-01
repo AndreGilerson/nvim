@@ -10,6 +10,17 @@ local function has_editor_window()
     return false
 end
 
+local image_exts = {
+    jpg = true, jpeg = true, png = true, gif = true, bmp = true,
+    webp = true, tiff = true, tif = true, svg = true, ico = true,
+    avif = true, heic = true,
+}
+
+local function is_image(path)
+    local ext = path:match("%.([^%.]+)$")
+    return ext ~= nil and image_exts[ext:lower()] == true
+end
+
 local function on_attach(bufnr)
     local api = require("nvim-tree.api")
     api.config.mappings.default_on_attach(bufnr)
@@ -19,6 +30,11 @@ local function on_attach(bufnr)
     end
 
     local function open_smart()
+        local node = api.tree.get_node_under_cursor()
+        if node and node.type == "file" and is_image(node.absolute_path) then
+            vim.fn.jobstart({ "xdg-open", node.absolute_path }, { detach = true })
+            return
+        end
         if not has_editor_window() then
             -- No editor window exists — create an empty one to the right of
             -- the tree so the terminal at the bottom isn't disturbed and
