@@ -19,7 +19,7 @@ end, { expr = true, desc = "Insert j (tracks time for jk escape)" })
 vim.keymap.set("i", "k", function()
     if (vim.loop.now() - last_j_ms) < jk_window_ms then
         last_j_ms = 0
-        return vim.api.nvim_replace_termcodes("<BS><Esc>", true, true, true)
+        return "<BS><Esc>"
     end
     return "k"
 end, { expr = true, desc = "Insert k (or escape if jk pressed quickly)" })
