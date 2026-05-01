@@ -19,20 +19,17 @@ local function on_attach(bufnr)
     end
 
     local function open_smart()
-        local node = api.tree.get_node_under_cursor()
-        if not node then return end
-        -- Directories: just expand/collapse via the default
-        if node.type == "directory" then
-            api.node.open.edit()
-            return
+        if not has_editor_window() then
+            -- No editor window exists — create an empty one to the right of
+            -- the tree so the terminal at the bottom isn't disturbed and
+            -- nvim-tree's normal open flow has a window to target.
+            local tree_win = vim.api.nvim_get_current_win()
+            local tree_width = vim.api.nvim_win_get_width(tree_win)
+            vim.cmd("rightbelow vnew")
+            vim.api.nvim_set_current_win(tree_win)
+            vim.api.nvim_win_set_width(tree_win, tree_width)
         end
-        if has_editor_window() then
-            api.node.open.edit()
-        else
-            -- No editor window exists — create a vsplit beside the tree so the
-            -- terminal at the bottom isn't disturbed.
-            vim.cmd("vsplit " .. vim.fn.fnameescape(node.absolute_path))
-        end
+        api.node.open.edit()
     end
 
     -- Define nvim-tree specific keymappings. These will only be active inside the nvim-tree buffer
