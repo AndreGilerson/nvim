@@ -8,7 +8,21 @@ function map(mode, lhs, rhs, opts)
 end
 
 -- Global, non plugin specific keymaps
-map("i", "jk", "<esc>", {desc = "Easier escape inside insert mode"})
+-- jk escape: time-based (independent of timeoutlen) so we can keep timeoutlen high
+-- for leader chords while jk stays snappy.
+local jk_window_ms = 150
+local last_j_ms = 0
+vim.keymap.set("i", "j", function()
+    last_j_ms = vim.loop.now()
+    return "j"
+end, { expr = true, desc = "Insert j (tracks time for jk escape)" })
+vim.keymap.set("i", "k", function()
+    if (vim.loop.now() - last_j_ms) < jk_window_ms then
+        last_j_ms = 0
+        return vim.api.nvim_replace_termcodes("<BS><Esc>", true, true, true)
+    end
+    return "k"
+end, { expr = true, desc = "Insert k (or escape if jk pressed quickly)" })
 
 -- Easier window navigation, normal mode
 map("n", "<c-h>", "<c-w>h", {desc = "Easier window movement, to the left"})
@@ -35,3 +49,6 @@ map("n", "H", ":bprevious 1<CR>", {desc = "Switch to previous buffer"})
 
 -- Nvim-tree specific
 map("n", "<c-e>", ":NvimTreeToggle<CR>")
+
+-- Quit all
+map("n", "<leader>qq", ":qa<CR>", {desc = "Quit all"})

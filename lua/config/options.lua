@@ -47,7 +47,7 @@ vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.scrolloff = 5
 
 -- Timeout length for multi key hotkeys
-vim.opt.timeoutlen = 100
+vim.opt.timeoutlen = 500
 
 -- optionally enable 24-bit colour
 vim.opt.termguicolors = true

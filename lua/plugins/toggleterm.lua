@@ -8,7 +8,11 @@ return {
             direction = 'horizontal',
             size = 15,
             close_on_exit = true,
-            auto_scroll = true
+            auto_scroll = true,
+            on_open = function()
+                vim.cmd("wincmd J")
+                vim.cmd("setlocal winfixheight")
+            end,
         })
     end
 }
