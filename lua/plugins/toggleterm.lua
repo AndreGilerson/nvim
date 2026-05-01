@@ -3,9 +3,10 @@ return {
     version = "*",
     config = function ()
         require("toggleterm").setup({
-            open_mapping = [[<c-_>]],
+            open_mapping = [[<c-/>]],
             hide_numers = true,
-            direction = 'float',
+            direction = 'horizontal',
+            size = 15,
             close_on_exit = true,
             auto_scroll = true
         })
