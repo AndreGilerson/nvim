@@ -52,6 +52,7 @@ local function on_attach(bufnr)
     vim.keymap.set("n", "l", open_smart, opts("Open"))
     vim.keymap.set("n", "v", api.node.open.vertical, opts("Open in new vertical split"))
     vim.keymap.set("n", "h", api.node.navigate.parent_close, opts("Close directory"))
+    vim.keymap.set("n", "H", api.tree.toggle_hidden_filter, opts("Toggle dotfiles"))
     vim.keymap.set("n", "<c-e>", ":NvimTreeToggle<CR>", opts("Toggle nvim-tre"))
 end
 
@@ -73,6 +74,7 @@ return {
             },
             filters = {
                 dotfiles = true,
+                git_ignored = false,
             },
             actions = {
                 open_file = {

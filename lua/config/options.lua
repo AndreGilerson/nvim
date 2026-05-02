@@ -53,6 +53,10 @@ vim.opt.scrolloff = 5
 -- Timeout length for multi key hotkeys
 vim.opt.timeoutlen = 500
 
+-- How long the cursor must sit still before CursorHold fires (used by the
+-- LSP diagnostic auto-popup). Default is 4000ms, way too slow.
+vim.opt.updatetime = 250
+
 -- optionally enable 24-bit colour
 vim.opt.termguicolors = true
 
