@@ -7,4 +7,5 @@ pkgs: with pkgs; [
 
   # Build deps for nvim-treesitter (compiles parsers from C at runtime)
   gcc
+  tree-sitter
 ]
