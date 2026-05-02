@@ -1,1 +1,3 @@
-/nix/store/0p8h3c1kpssb7zs84li7jxmrj17has6k-home-manager-files/.config/nvim/init.lua
+require("config.options") -- Options for nvim suchs as tab/space, hotkey timeout etc.
+require("config.lazy") -- config for lazy.nvim plugin manager, all plugins are then loaded through it
+require("config.keymaps") -- custom keymapings
