@@ -43,6 +43,35 @@ map("t", "<c-k>", [[<c-\><c-n><c-w>k]], {desc = "Easier window movement, to the 
 map("t", "<c-l>", [[<c-\><c-n><c-w>l]], {desc = "Easier window movement, to the right"})
 map("t", "<c-/>", [[<c-\><c-n>:ToggleTerm<CR>]], {desc = "Toggle terminal from terminal mode"})
 
+-- Move by visual lines on wrapped lines instead of actual document lines.
+-- A count (e.g. `5j`) still moves by real lines so motions/`relativenumber`
+-- jumps keep working as expected.
+local function visual_move(key)
+    return function()
+        return vim.v.count == 0 and ("g" .. key) or key
+    end
+end
+
+for _, m in ipairs({ "n", "v" }) do
+    vim.keymap.set(m, "j", visual_move("j"), { expr = true, desc = "Down by visual line" })
+    vim.keymap.set(m, "k", visual_move("k"), { expr = true, desc = "Up by visual line" })
+    vim.keymap.set(m, "<Down>", visual_move("j"), { expr = true, desc = "Down by visual line" })
+    vim.keymap.set(m, "<Up>", visual_move("k"), { expr = true, desc = "Up by visual line" })
+
+    -- Start/end of visual line for home/end style keys
+    vim.keymap.set(m, "0", "g0", { desc = "Start of visual line" })
+    vim.keymap.set(m, "^", "g^", { desc = "First non-blank of visual line" })
+    vim.keymap.set(m, "$", "g$", { desc = "End of visual line" })
+    vim.keymap.set(m, "<Home>", "g<Home>", { desc = "Start of visual line" })
+    vim.keymap.set(m, "<End>", "g<End>", { desc = "End of visual line" })
+end
+
+-- Insert mode arrows follow visual lines too
+vim.keymap.set("i", "<Down>", "<C-o>gj", { desc = "Down by visual line" })
+vim.keymap.set("i", "<Up>", "<C-o>gk", { desc = "Up by visual line" })
+vim.keymap.set("i", "<Home>", "<C-o>g<Home>", { desc = "Start of visual line" })
+vim.keymap.set("i", "<End>", "<C-o>g<End>", { desc = "End of visual line" })
+
 -- Easier window navigation, normal mode
 map("n", "L", ":bnext 1<CR>", {desc = "Switch to next buffer"})
 map("n", "H", ":bprevious 1<CR>", {desc = "Switch to previous buffer"})
