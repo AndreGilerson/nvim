@@ -122,5 +122,24 @@ return {
             },
             on_attach = on_attach,
         })
+
+        -- With filesystem watchers enabled, nvim-tree never explicitly
+        -- reloads after its own delete/create/rename — it relies solely on
+        -- the directory watcher firing (see actions/fs/*.lua, which only call
+        -- reload_explorer() when watchers are *disabled*). If a watcher event
+        -- is missed, the tree keeps showing a file you just deleted until a
+        -- manual :NvimTreeRefresh. Subscribe to the fs-action events directly
+        -- and force a reload so in-tree operations always refresh, regardless
+        -- of whether the watcher delivered.
+        local api = require("nvim-tree.api")
+        local Event = api.events.Event
+        local function reload()
+            api.tree.reload()
+        end
+        api.events.subscribe(Event.FileRemoved, reload)
+        api.events.subscribe(Event.FolderRemoved, reload)
+        api.events.subscribe(Event.FileCreated, reload)
+        api.events.subscribe(Event.FolderCreated, reload)
+        api.events.subscribe(Event.NodeRenamed, reload)
     end,
 }
