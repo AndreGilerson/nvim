@@ -89,9 +89,22 @@ use flake
 then `direnv allow` once. Now:
 
 - A shell that `cd`s into the project already has the devshell on `PATH`, so `nvim` launched from there sees the project's tools immediately.
-- `direnv.vim` also re-exports the environment on directory change inside nvim (e.g. when you `:cd` around or open a file in another project), so newly spawned language servers pick up the right `PATH`.
+- `direnv.vim` re-exports the environment into the running nvim on directory change (`:cd`/`:tcd`, which fire `DirChanged`). Merely opening a file in another subproject does not move the cwd, so it does not re-export. For that, register the server through the per-LSP helper below.
 
-> **Note:** a language server that's already running won't retroactively get the new environment. Run `:LspRestart` after the environment changes, or it simply applies to the next server that starts.
+> **Note:** the editor environment is process-global, so `direnv.vim` is "last directory wins" and a server that's already running won't retroactively get a new environment (run `:LspRestart` after a change). It remains the right tool for cwd-based consumers — `:terminal`, `:!`, and the like.
+
+#### Per-language-server environments (concurrent multi-direnv)
+
+To run a language server against its buffer's nearest `.envrc` (independently per buffer, with no global cwd movement and without the binary being on nvim's own `PATH`) register it through [`config.direnv_lsp`](./lua/config/direnv_lsp.lua). It starts the server via `direnv exec <nearest-.envrc-root> <binary>`, so files under different `.envrc`s get separate clients with separate environments at the same time:
+
+```lua
+-- e.g. in a project's .nvim.lua (or the base config for a cross-project server)
+require("config.direnv_lsp").server("texlab", "texlab", {
+  settings = { texlab = { build = { onSave = true } } },
+})
+```
+
+The server only starts in buffers that have an `.envrc` ancestor (so an always-registered server stays inert elsewhere), and reuses one client per project tree. `direnv exec` execve-replaces itself with the server, so `:LspRestart` and quitting clean up without leaving orphaned processes. If the `.envrc` exists but hasn't been `direnv allow`ed, the server won't start and `:LspLog` shows `direnv: error … is blocked` — run `direnv allow` to fix it.
 
 ### Per-project configuration via `exrc`
 
