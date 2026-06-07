@@ -81,18 +81,34 @@ return {
             -- build outputs) exhaust the kernel's inotify budget and spam
             -- "Could not start the fs_event watcher ... ENOSPC". Skip the dirs
             -- that churn a lot and that we never edit directly.
+            --
+            -- nvim-tree matches `ignore_dirs` with `vim.fn.match` against the
+            -- *full path* of every watched directory (see its
+            -- explorer/watch.lua). A plain string list is therefore an
+            -- unanchored regex that matches as a substring anywhere in the
+            -- path — so a project living under e.g. ".../my-target/..." or a
+            -- nix "result" would match the root and lose *all* watchers,
+            -- silently breaking auto-refresh. Use the function form and match
+            -- on exact path components instead.
             filesystem_watchers = {
                 enable = true,
                 debounce_delay = 50,
-                ignore_dirs = {
-                    "/.git/",
-                    "node_modules",
-                    ".direnv",
-                    "target",
-                    "result",
-                    ".venv",
-                    "__pycache__",
-                },
+                ignore_dirs = function(path)
+                    local ignored = {
+                        ["node_modules"] = true,
+                        [".direnv"] = true,
+                        ["target"] = true,
+                        ["result"] = true,
+                        [".venv"] = true,
+                        ["__pycache__"] = true,
+                    }
+                    for component in path:gmatch("[^/\\]+") do
+                        if ignored[component] then
+                            return true
+                        end
+                    end
+                    return false
+                end,
             },
             actions = {
                 open_file = {
