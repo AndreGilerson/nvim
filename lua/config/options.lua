@@ -73,6 +73,15 @@ hidden = true
 -- Always show tabline
 vim.o.showtabline = 2
 
+-- Project-local config: when nvim starts in a directory containing a
+-- `.nvim.lua` (or `.nvimrc`/`.exrc`), source it. This is how a project layers
+-- extra settings / LSP servers on top of this base config without launching
+-- nvim a special way. Gated by `vim.secure`: the first time nvim sees a given
+-- file it prompts to trust it (`:trust`) and remembers the hash, so an
+-- untrusted file in someone else's repo can't run code silently.
+-- See README.md → "Per-project configuration".
+vim.o.exrc = true
+
 -- Show a vertical line at column 80 for programming files
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = {

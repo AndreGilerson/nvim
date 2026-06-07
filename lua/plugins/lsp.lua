@@ -3,15 +3,22 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "hrsh7th/cmp-nvim-lsp" },
     config = function()
-        local lspconfig = require("lspconfig")
+        -- nvim 0.11+ deprecated the `require("lspconfig").<server>.setup{}`
+        -- framework in favour of the native `vim.lsp.config()` / `vim.lsp.enable()`
+        -- API. We keep the nvim-lspconfig plugin installed only for the per-server
+        -- defaults it ships as `lsp/<name>.lua` runtime files (cmd, root markers,
+        -- filetypes) and for `:LspRestart`; all *configuration* now goes through
+        -- the native API, which deep-merges our tables over those defaults.
+
         -- Tell servers what completion features cmp can handle (snippets,
         -- resolve support, etc.). Without this, completion items are limited.
+        -- Applied to every server via the "*" wildcard config.
         local capabilities = require("cmp_nvim_lsp").default_capabilities()
+        vim.lsp.config("*", { capabilities = capabilities })
 
         -- Lua: configured to know about the neovim runtime so vim.api etc.
         -- aren't flagged as undefined when editing this config.
-        lspconfig.lua_ls.setup({
-            capabilities = capabilities,
+        vim.lsp.config("lua_ls", {
             settings = {
                 Lua = {
                     runtime = { version = "LuaJIT" },
@@ -25,11 +32,8 @@ return {
             },
         })
 
-        -- Nix
-        lspconfig.nil_ls.setup({ capabilities = capabilities })
-
-        -- Bash
-        lspconfig.bashls.setup({ capabilities = capabilities })
+        -- Nix (nil_ls) and Bash (bashls) use the plugin defaults as-is;
+        -- capabilities come from the "*" config above.
 
         -- Python: discover the project's interpreter (venv, then PATH) so
         -- basedpyright resolves imports against the right environment.
@@ -297,8 +301,7 @@ return {
             return paths
         end
 
-        lspconfig.basedpyright.setup({
-            capabilities = capabilities,
+        vim.lsp.config("basedpyright", {
             before_init = function(_, config)
                 local root = config.root_dir or vim.fn.getcwd()
                 local python = discover_python(root)
@@ -327,6 +330,11 @@ return {
                 end
             end,
         })
+
+        -- Activate the servers. Their default cmd/root_dir/filetypes come from
+        -- nvim-lspconfig's bundled `lsp/<name>.lua`; the `vim.lsp.config` tables
+        -- above are merged on top.
+        vim.lsp.enable({ "lua_ls", "nil_ls", "bashls", "basedpyright" })
 
         -- :PythonSelect — pick venv / flake / system / custom path
         vim.api.nvim_create_user_command("PythonSelect", function()

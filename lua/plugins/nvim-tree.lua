@@ -76,6 +76,24 @@ return {
                 dotfiles = true,
                 git_ignored = false,
             },
+            -- Each expanded directory gets a libuv inotify watcher for live
+            -- refresh. Large trees (git submodule modules, node_modules, nix
+            -- build outputs) exhaust the kernel's inotify budget and spam
+            -- "Could not start the fs_event watcher ... ENOSPC". Skip the dirs
+            -- that churn a lot and that we never edit directly.
+            filesystem_watchers = {
+                enable = true,
+                debounce_delay = 50,
+                ignore_dirs = {
+                    "/.git/",
+                    "node_modules",
+                    ".direnv",
+                    "target",
+                    "result",
+                    ".venv",
+                    "__pycache__",
+                },
+            },
             actions = {
                 open_file = {
                     window_picker = {
