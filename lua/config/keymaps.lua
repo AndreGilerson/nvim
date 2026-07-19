@@ -24,6 +24,13 @@ vim.keymap.set("i", "k", function()
     return "k"
 end, { expr = true, desc = "Insert k (or escape if jk pressed quickly)" })
 
+-- Finer-grained undo: drop an undo breakpoint before space/punctuation while
+-- typing, so `u` rewinds word/phrase-by-phrase instead of the whole insert
+-- session. These keys are not mapped by cmp, so there is no completion conflict.
+for _, ch in ipairs({ " ", ".", ",", "!", "?", ";", ":", ")", "]", "}" }) do
+    vim.keymap.set("i", ch, ch .. "<C-g>u", { desc = "Insert " .. ch .. " with undo breakpoint" })
+end
+
 -- Easier window navigation, normal mode
 map("n", "<c-h>", "<c-w>h", {desc = "Easier window movement, to the left"})
 map("n", "<c-j>", "<c-w>j", {desc = "Easier window movement, to the down"})
