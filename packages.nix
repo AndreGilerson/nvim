@@ -9,6 +9,15 @@ pkgs: with pkgs; [
   gcc
   tree-sitter
 
+  # Writing stack: grammar / spell / style checkers, wired as language servers
+  # in lua/plugins/prose.lua. See README.md → "Writing: spell, grammar & style".
+  harper         # harper-ls: fast grammar checker for code comments
+  ltex-ls-plus   # LanguageTool LSP: grammar/spell for LaTeX, Markdown, prose
+  vale           # prose style linter (voice/tone), driven by vale-ls
+  vale-ls        # LSP frontend for vale
+  aspell         # used by :DictSync to build the completion wordlist
+  aspellDicts.en # English word data for aspell
+
   # Per-project devshell integration (direnv.vim plugin). This only provides
   # the `direnv` binary; for fast `use flake` caching and the shell hook,
   # enable `programs.direnv` (with `nix-direnv`) in your home-manager config —

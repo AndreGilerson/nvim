@@ -1,0 +1,4 @@
+# Vale style packages fetched by `vale sync` — regenerated, not source.
+# Keep vale/styles/ as a directory but ignore the downloaded rule packages.
+vale/styles/*
+!vale/styles/.gitkeep

@@ -14,9 +14,11 @@ Requires Neovim ≥ 0.12. Plugins are managed by [lazy.nvim](https://github.com/
 init.lua                 entry point: options → lazy → keymaps
 lua/config/
   options.lua            editor options (tabs, clipboard, exrc, …)
+  writing.lua            spell setup, Vale ruleset path, :DictSync wordlist
   lazy.lua               lazy.nvim bootstrap + plugin import
   keymaps.lua            global keymaps
 lua/plugins/             one file per plugin (auto-imported by lazy)
+vale/.vale.ini           Vale style ruleset (voice/tone); `vale sync` fills vale/styles/
 flake.nix                exposes the home-manager module + a `nix run`-able package
 module.nix               home-manager module: installs the tools below
 packages.nix             the actual tool list (language servers, build deps, direnv)
@@ -48,15 +50,68 @@ This repo is two things at once: the Neovim config and a flake that installs the
 | Colorscheme   | `rebelot/kanagawa.nvim`         |
 | File tree     | `nvim-tree/nvim-tree.lua`       |
 | Fuzzy find    | `nvim-telescope/telescope.nvim` |
-| Completion    | `hrsh7th/nvim-cmp`              |
+| Completion    | `hrsh7th/nvim-cmp` (+ `cmp-spell`, `cmp-dictionary` for prose) |
 | Syntax        | `nvim-treesitter/nvim-treesitter` |
 | LSP           | `neovim/nvim-lspconfig` (native `vim.lsp.config` API) |
+| Writing       | `ltex-ls-plus`, `harper`, `vale` (see below) |
 | Terminal      | `akinsho/toggleterm.nvim`       |
 | Keymap hints  | `folke/which-key.nvim`          |
 | Markdown      | `OXY2DEV/markview.nvim`         |
 | Devshell env  | `direnv/direnv.vim`             |
 
 Bundled language servers (for editing this config and basic scripting): `lua_ls`, `nil` (Nix), `bashls`, and `basedpyright` (Python). LSP is configured through Neovim's native `vim.lsp.config()` / `vim.lsp.enable()` API — `nvim-lspconfig` is kept only for the per-server defaults it ships.
+
+---
+
+## Writing: spell, grammar & style
+
+A writing stack for prose (LaTeX, Markdown, git commits, …) and code comments.
+
+| Piece | Role |
+|-------|------|
+| **ltex-ls-plus** (LanguageTool) | Grammar + spelling for prose/markup (LaTeX, Markdown, reST, …) |
+| **harper** (`harper-ls`) | Grammar in *code comments* only (scoped to programming filetypes) |
+| **vale** (`vale-ls`) | Style / voice / tone — passive voice, wordiness, clichés (Grammarly-like) |
+| built-in `spell` + **cmp-spell** | Squiggles **and** correct-word predictive completion in prose |
+| **cmp-dictionary** | Phone-keyboard-style completion from a real wordlist |
+
+All three servers surface their fixes as **LSP code actions** — put the cursor
+on a flagged word and hit `<leader>ca` to pick "Did you mean…", add-to-dictionary,
+or disable-rule.
+
+**Spell keys** (prose buffers, where `spell` is auto-enabled): `z=` list
+corrections · `zg` mark a word *good* (learns it) · `zw` mark *wrong*. Words you
+`zg` are saved to a personal spellfile (`stdpath("data")/spell/en.utf-8.add`) and
+immediately become completion candidates.
+
+### One-time setup
+
+The binaries come from [`packages.nix`](./packages.nix) (a `home-manager switch`
+installs `harper`, `ltex-ls-plus`, `vale`, `vale-ls`, `aspell`). Then:
+
+1. **Vale styles** — fetch the style rules referenced by [`vale/.vale.ini`](./vale/.vale.ini):
+
+   ```bash
+   cd ~/.config/nvim/vale && vale sync    # downloads write-good, proselint into vale/styles/
+   ```
+
+   (One network call; offline afterward. `vale/styles/` is gitignored.) To add a
+   house voice, append `Microsoft` or `Google` to both `Packages` and
+   `BasedOnStyles` in `.vale.ini`, then re-sync.
+
+2. **Completion wordlist** — build the predictive dictionary from aspell, once:
+
+   ```vim
+   :DictSync        " writes stdpath("data")/dict/en.dict, hot-loads it
+   ```
+
+### Optional: n-gram data (context-aware spelling)
+
+LanguageTool can catch *real-word* errors (their/there, its/it's) using an
+offline n-gram data set. It's a large separate download, so the config only
+wires it when present. Drop the English data so that `~/.local/share/ltex/ngrams/en/`
+exists (from LanguageTool's [n-gram data](https://dev.languagetool.org/finding-errors-using-n-gram-data));
+`ltex_plus` picks it up automatically on next start.
 
 ---
 

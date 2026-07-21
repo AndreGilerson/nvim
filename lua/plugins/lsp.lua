@@ -331,10 +331,52 @@ return {
             end,
         })
 
+        -- === Writing: grammar / spell / style language servers ==========
+        -- Check prose (LaTeX, Markdown, git commits) and code comments, and
+        -- surface fixes as LSP code actions (your <leader>ca mapping). Roles
+        -- are split so they don't flag the same text twice:
+        --   • ltex_plus (LanguageTool) — grammar + spelling for prose/markup
+        --   • harper_ls                — grammar in *code comments* only
+        --   • vale_ls                  — style / voice / tone (Grammarly-like)
+        -- The binaries come from packages.nix; spell setup, the Vale ruleset
+        -- path, and :DictSync live in lua/config/writing.lua.
+
+        -- harper: restrict to code filetypes so it doesn't double up with ltex
+        -- on Markdown/gitcommit. Passing `filetypes` replaces the bundled
+        -- default list outright (cmd/root_markers are kept).
+        vim.lsp.config("harper_ls", {
+            filetypes = {
+                "c", "cpp", "cs", "go", "java", "javascript", "typescript",
+                "typescriptreact", "lua", "nix", "python", "ruby", "rust",
+                "swift", "toml", "haskell", "cmake", "php", "dart", "clojure", "sh",
+            },
+            settings = {
+                ["harper-ls"] = {
+                    userDictPath = vim.fn.stdpath("data") .. "/harper/dict.txt",
+                },
+            },
+        })
+
+        -- ltex-ls-plus: LanguageTool for prose/markup. Optionally load the
+        -- offline n-gram data set for context-aware real-word errors
+        -- (their/there, its/it's). It's a large separate download, so we only
+        -- wire it when the directory exists — a missing data set must never
+        -- break startup. Expected layout: <dir>/en/ (README → "n-gram data").
+        local ltex = { settings = { ltex = { language = "en-US" } } }
+        local ngram_dir = vim.fn.expand("~/.local/share/ltex/ngrams")
+        if vim.fn.isdirectory(ngram_dir) == 1 then
+            ltex.settings.ltex.additionalRules = { languageModel = ngram_dir }
+        end
+        vim.lsp.config("ltex_plus", ltex)
+
+        -- vale_ls needs no settings here: its ruleset comes from the .vale.ini
+        -- shipped with this config, located via VALE_CONFIG_PATH (writing.lua).
+
         -- Activate the servers. Their default cmd/root_dir/filetypes come from
         -- nvim-lspconfig's bundled `lsp/<name>.lua`; the `vim.lsp.config` tables
         -- above are merged on top.
         vim.lsp.enable({ "lua_ls", "nil_ls", "bashls", "basedpyright" })
+        vim.lsp.enable({ "harper_ls", "ltex_plus", "vale_ls" })
 
         -- :PythonSelect — pick venv / flake / system / custom path
         vim.api.nvim_create_user_command("PythonSelect", function()
