@@ -105,13 +105,24 @@ installs `harper`, `ltex-ls-plus`, `vale`, `vale-ls`, `aspell`). Then:
    :DictSync        " writes stdpath("data")/dict/en.dict, hot-loads it
    ```
 
-### Optional: n-gram data (context-aware spelling)
+### n-gram data (context-aware spelling)
 
-LanguageTool can catch *real-word* errors (their/there, its/it's) using an
-offline n-gram data set. It's a large separate download, so the config only
-wires it when present. Drop the English data so that `~/.local/share/ltex/ngrams/en/`
-exists (from LanguageTool's [n-gram data](https://dev.languagetool.org/finding-errors-using-n-gram-data));
-`ltex_plus` picks it up automatically on next start.
+LanguageTool catches *real-word* errors (their/there, its/it's) using an offline
+[n-gram data set](https://dev.languagetool.org/finding-errors-using-n-gram-data).
+The home-manager module downloads the English data by default (a fixed-output
+`fetchzip`, ~8 GB) and symlinks it to `~/.local/share/ltex/ngrams/en/`, which
+[`lsp.lua`](./lua/plugins/lsp.lua) auto-detects and passes to `ltex_plus` as its
+`languageModel` — no manual step.
+
+Because it is a large download, it can be turned off in your home-manager config:
+
+```nix
+nvimConfig.ltexNgrams.enable = false;   # ltex still runs, without n-gram rules
+```
+
+The version and hash are pinned from the maintained
+[`Janik-Haag/nix-languagetool-ngram`](https://github.com/Janik-Haag/nix-languagetool-ngram)
+project.
 
 ---
 
