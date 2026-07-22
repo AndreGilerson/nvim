@@ -50,7 +50,7 @@ This repo is two things at once: the Neovim config and a flake that installs the
 | Colorscheme   | `rebelot/kanagawa.nvim`         |
 | File tree     | `nvim-tree/nvim-tree.lua`       |
 | Fuzzy find    | `nvim-telescope/telescope.nvim` |
-| Completion    | `hrsh7th/nvim-cmp` (+ `cmp-spell`, `cmp-dictionary` for prose) |
+| Completion    | `hrsh7th/nvim-cmp` (+ `cmp-dictionary` for prose prediction) |
 | Syntax        | `nvim-treesitter/nvim-treesitter` |
 | LSP           | `neovim/nvim-lspconfig` (native `vim.lsp.config` API) |
 | Writing       | `ltex-ls-plus`, `harper`, `vale` (see below) |
@@ -72,8 +72,8 @@ A writing stack for prose (LaTeX, Markdown, git commits, …) and code comments.
 | **ltex-ls-plus** (LanguageTool) | Grammar + spelling for prose/markup (LaTeX, Markdown, reST, …) |
 | **harper** (`harper-ls`) | Grammar in *code comments* only (scoped to programming filetypes) |
 | **vale** (`vale-ls`) | Style / voice / tone — passive voice, wordiness, clichés (Grammarly-like) |
-| built-in `spell` + **cmp-spell** | Squiggles **and** correct-word predictive completion in prose |
-| **cmp-dictionary** | Phone-keyboard-style completion from a real wordlist |
+| built-in `spell` | Squiggles + `z=` corrections in prose; `zg` learns words |
+| **cmp-dictionary** | Phone-keyboard-style prefix completion from a real wordlist (+ learned words) |
 
 All three servers surface their fixes as **LSP code actions** — put the cursor
 on a flagged word and hit `<leader>ca` to pick "Did you mean…", add-to-dictionary,

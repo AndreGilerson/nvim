@@ -15,8 +15,10 @@ pkgs: with pkgs; [
   ltex-ls-plus   # LanguageTool LSP: grammar/spell for LaTeX, Markdown, prose
   vale           # prose style linter (voice/tone), driven by vale-ls
   vale-ls        # LSP frontend for vale
-  aspell         # used by :DictSync to build the completion wordlist
-  aspellDicts.en # English word data for aspell
+  # aspell + English data, wrapped so the binary can actually find the `en`
+  # dictionary (a bare `aspell` looks only in its own store path). Used by
+  # :DictSync to build the predictive completion wordlist.
+  (aspellWithDicts (dicts: [ dicts.en ]))
 
   # Per-project devshell integration (direnv.vim plugin). This only provides
   # the `direnv` binary; for fast `use flake` caching and the shell hook,

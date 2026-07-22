@@ -5,7 +5,6 @@
   "cmp-dictionary": { "branch": "main", "commit": "fecc3ef2435c2be35818f8fcac4a6c5655f3a8f0" },
   "cmp-nvim-lsp": { "branch": "main", "commit": "99290b3ec1322070bcfb9e846450a46f6efa50f0" },
   "cmp-path": { "branch": "main", "commit": "91ff86cd9c29299a64f968ebb45846c485725f23" },
-  "cmp-spell": { "branch": "master", "commit": "694a4e50809d6d645c1ea29015dad0c293f019d6" },
   "cmp_luasnip": { "branch": "master", "commit": "98d9cb5c2c38532bd9bdb481067b20fea8f32e90" },
   "kanagawa.nvim": { "branch": "master", "commit": "debe91547d7fb1eef34ce26a5106f277fbfdd109" },
   "lazy.nvim": { "branch": "main", "commit": "7e6c863bc7563efbdd757a310d17ebc95166cef3" },

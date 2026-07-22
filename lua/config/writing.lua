@@ -6,11 +6,11 @@
 -- or completion starts.
 
 -- --- Spell (built-in) -------------------------------------------------------
--- Spell drives both the squiggles and, via cmp-spell, the predictive
--- corrections. Words added with `zg` are written to the spellfile below and
--- immediately become completion candidates — that's the "self-learning" part.
--- The spellfile lives under the data dir (not this repo) so personal words
--- don't get committed.
+-- Spell drives the squiggles and `z=` corrections. Words added with `zg` are
+-- written to the spellfile below, which cmp-dictionary also reads (see
+-- plugins/cmp.lua) so learned words get completed too — the "self-learning"
+-- part. The spellfile lives under the data dir (not this repo) so personal
+-- words don't get committed.
 local spell_dir = vim.fn.stdpath("data") .. "/spell"
 vim.fn.mkdir(spell_dir, "p")
 vim.o.spellfile = spell_dir .. "/en.utf-8.add"
@@ -59,8 +59,11 @@ end, { desc = "Download Vale style packages (vale sync)" })
 
 -- --- Predictive-completion wordlist ----------------------------------------
 -- cmp-dictionary (plugins/cmp.lua) reads a plain, one-word-per-line list.
--- Build it from aspell's English dictionary. Fully offline once aspell +
--- aspellDicts.en (packages.nix) are installed; re-run after changing dicts.
+-- Build it from aspell's English dictionary. Fully offline once the
+-- aspellWithDicts wrapper (packages.nix) is installed; re-run after changing
+-- dicts. `aspell` here must be the wrapper that bundles the `en` data — a bare
+-- aspell binary can't find its dictionary and this fails with "language en is
+-- not known".
 vim.api.nvim_create_user_command("DictSync", function()
     local out_dir = vim.fn.stdpath("data") .. "/dict"
     vim.fn.mkdir(out_dir, "p")
@@ -89,10 +92,16 @@ vim.api.nvim_create_user_command("DictSync", function()
                 f:write(table.concat(words, "\n"))
                 f:close()
                 -- Hot-load the freshly written list into cmp-dictionary so it
-                -- takes effect without a restart.
+                -- takes effect without a restart. Include the personal spellfile
+                -- (zg-added words) alongside the generated list, matching the
+                -- startup paths in plugins/cmp.lua.
                 pcall(function()
+                    local paths = { out }
+                    if vim.o.spellfile ~= "" and vim.fn.filereadable(vim.o.spellfile) == 1 then
+                        paths[#paths + 1] = vim.o.spellfile
+                    end
                     require("cmp_dictionary").setup({
-                        paths = { out },
+                        paths = paths,
                         exact_length = 2,
                         first_case_insensitive = true,
                     })

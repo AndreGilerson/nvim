@@ -7,36 +7,36 @@ return {
         "hrsh7th/cmp-path",       -- filesystem paths
         "L3MON4D3/LuaSnip",       -- snippet engine
         "saadparwaiz1/cmp_luasnip", -- snippet completions
-        -- Phone-keyboard-style predictive text for prose (see prose.lua):
-        "f3fora/cmp-spell",       -- correct-word completion from the spell engine
-        "uga-rosa/cmp-dictionary", -- completion from a plain wordlist (:DictSync)
+        -- Phone-keyboard-style predictive text for prose (prefix completion
+        -- from a real wordlist — see config/writing.lua :DictSync):
+        "uga-rosa/cmp-dictionary",
     },
     config = function()
         local cmp = require("cmp")
         local luasnip = require("luasnip")
 
-        -- Predictive dictionary source. `paths` points at a plain newline-
-        -- separated wordlist; run :DictSync (defined in config/writing.lua)
-        -- once to generate it from aspell. cmp-dictionary throws if a path is
-        -- missing, so we only pass it when the file exists — :DictSync calls
-        -- setup() again to hot-load it after writing.
-        local dict_path = vim.fn.stdpath("data") .. "/dict/en.dict"
+        -- Predictive dictionary source — this is what actually gives
+        -- phone-keyboard prefix completion ("recei" → receive, receiver, …).
+        -- It reads plain newline-separated wordlists:
+        --   • the aspell-generated list (run :DictSync once to build it), and
+        --   • your personal spellfile, so words you `zg` also get completed
+        --     — the "self-learning" bit (picked up on next start / :DictSync).
+        -- Missing files are skipped: cmp-dictionary throws on a nonexistent
+        -- path, so we only pass ones that exist.
+        local dict_paths = {}
+        for _, p in ipairs({
+            vim.fn.stdpath("data") .. "/dict/en.dict",
+            vim.o.spellfile,
+        }) do
+            if p ~= "" and vim.fn.filereadable(p) == 1 then
+                dict_paths[#dict_paths + 1] = p
+            end
+        end
         require("cmp_dictionary").setup({
-            paths = vim.fn.filereadable(dict_path) == 1 and { dict_path } or {},
+            paths = dict_paths,
             exact_length = 2,            -- start matching after 2 chars
             first_case_insensitive = true, -- "recei" also completes "Receive"
         })
-
-        -- cmp-spell turns Neovim's spell engine into a completion source: as you
-        -- type it offers correctly-spelled words, and any word you `zg` into your
-        -- personal spellfile becomes a candidate — that's the "self-learning".
-        local spell_source = {
-            name = "spell",
-            option = {
-                keep_all_entries = false,
-                preselect_correct_word = true,
-            },
-        }
 
         cmp.setup({
             snippet = {
@@ -78,16 +78,19 @@ return {
             }),
         })
 
-        -- Prose buffers get the predictive-text sources instead. Spell and
-        -- dictionary lead; the LSP (ltex/harper/vale) here provides diagnostics
-        -- and fixes, not completion, so we don't lean on it for words.
+        -- Prose buffers: same as the default sources PLUS the predictive
+        -- dictionary. Crucially this keeps `nvim_lsp` first, so an LSP attached
+        -- to prose (e.g. texlab for LaTeX \ref/\cite label completion) still
+        -- works — dropping it was what broke that. Buffer stays a low-priority
+        -- fallback so it no longer dominates the menu with previously-typed
+        -- words. ltex/harper/vale don't complete; they diagnose (<leader>ca).
         cmp.setup.filetype(
             { "markdown", "tex", "plaintex", "text", "gitcommit", "rst", "typst", "mail", "org" },
             {
                 sources = cmp.config.sources({
-                    spell_source,
-                    { name = "dictionary", keyword_length = 2 },
+                    { name = "nvim_lsp" },
                     { name = "luasnip" },
+                    { name = "dictionary", keyword_length = 2 },
                 }, {
                     { name = "buffer", keyword_length = 4 },
                     { name = "path" },
