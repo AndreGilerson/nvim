@@ -89,12 +89,15 @@ immediately become completion candidates.
 The binaries come from [`packages.nix`](./packages.nix) (a `home-manager switch`
 installs `harper`, `ltex-ls-plus`, `vale`, `vale-ls`, `aspell`). Then:
 
-1. **Vale styles** — fetch the style rules referenced by [`vale/.vale.ini`](./vale/.vale.ini):
+1. **Vale styles** — download the style packages named in
+   [`vale/.vale.ini`](./vale/.vale.ini) into `StylesPath`. From inside Neovim:
 
-   ```bash
-   cd ~/.config/nvim/vale && vale sync    # downloads write-good, proselint into vale/styles/
+   ```vim
+   :ValeSync        " runs `vale sync` with the right config, then reloads vale_ls
    ```
 
+   or from a shell: `cd ~/.config/nvim/vale && vale sync`. Skipping this makes
+   `vale_ls` fail with `E100 … style 'write-good' does not exist on StylesPath`.
    (One network call; offline afterward. `vale/styles/` is gitignored.) To add a
    house voice, append `Microsoft` or `Google` to both `Packages` and
    `BasedOnStyles` in `.vale.ini`, then re-sync.

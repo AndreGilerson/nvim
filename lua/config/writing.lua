@@ -35,6 +35,28 @@ vim.api.nvim_create_autocmd("FileType", {
 -- README → "Writing: spell, grammar & style".
 vim.env.VALE_CONFIG_PATH = vim.fn.stdpath("config") .. "/vale/.vale.ini"
 
+-- :ValeSync — download the style packages named in .vale.ini into StylesPath.
+-- Required once (and after adding packages), else vale-ls errors with
+-- "style '…' does not exist on StylesPath". Runs vale with the config above
+-- (inherited via VALE_CONFIG_PATH) and reloads the server on success.
+vim.api.nvim_create_user_command("ValeSync", function()
+    if vim.fn.executable("vale") ~= 1 then
+        vim.notify("ValeSync: `vale` not on PATH (install via packages.nix)", vim.log.levels.ERROR)
+        return
+    end
+    vim.notify("ValeSync: downloading Vale style packages…")
+    vim.system({ "vale", "sync" }, { text = true }, function(res)
+        vim.schedule(function()
+            if res.code ~= 0 then
+                vim.notify("ValeSync failed: " .. (res.stderr or res.stdout or ""), vim.log.levels.ERROR)
+                return
+            end
+            vim.notify("ValeSync: styles synced; reloading vale_ls")
+            pcall(vim.cmd, "LspRestart vale_ls")
+        end)
+    end)
+end, { desc = "Download Vale style packages (vale sync)" })
+
 -- --- Predictive-completion wordlist ----------------------------------------
 -- cmp-dictionary (plugins/cmp.lua) reads a plain, one-word-per-line list.
 -- Build it from aspell's English dictionary. Fully offline once aspell +
