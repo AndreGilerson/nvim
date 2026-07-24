@@ -27,8 +27,10 @@ end, { expr = true, desc = "Insert k (or escape if jk pressed quickly)" })
 -- Finer-grained undo: drop an undo breakpoint before space/punctuation while
 -- typing, so `u` rewinds word/phrase-by-phrase instead of the whole insert
 -- session. These keys are not mapped by cmp, so there is no completion conflict.
+-- <C-]> first: a noremap RHS is never scanned for abbreviations, so without it
+-- these mappings silently disable all iabbrev expansion (e.g. the thesis \gls ones).
 for _, ch in ipairs({ " ", ".", ",", "!", "?", ";", ":", ")", "]", "}" }) do
-    vim.keymap.set("i", ch, ch .. "<C-g>u", { desc = "Insert " .. ch .. " with undo breakpoint" })
+    vim.keymap.set("i", ch, "<C-]>" .. ch .. "<C-g>u", { desc = "Insert " .. ch .. " with undo breakpoint" })
 end
 
 -- Easier window navigation, normal mode
