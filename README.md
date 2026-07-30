@@ -54,6 +54,7 @@ This repo is two things at once: the Neovim config and a flake that installs the
 | Syntax        | `nvim-treesitter/nvim-treesitter` |
 | LSP           | `neovim/nvim-lspconfig` (native `vim.lsp.config` API) |
 | Writing       | `ltex-ls-plus`, `harper`, `vale` (see below) |
+| Git changes   | `lewis6991/gitsigns.nvim` (see below) |
 | Terminal      | `akinsho/toggleterm.nvim`       |
 | Keymap hints  | `folke/which-key.nvim`          |
 | Markdown      | `OXY2DEV/markview.nvim`         |
@@ -126,6 +127,52 @@ nvimConfig.ltexNgrams.enable = false;   # ltex still runs, without n-gram rules
 The version and hash are pinned from the maintained
 [`Janik-Haag/nix-languagetool-ngram`](https://github.com/Janik-Haag/nix-languagetool-ngram)
 project.
+
+---
+
+## Git: seeing *which lines* changed
+
+nvim-tree colours the files that git considers modified; `gitsigns.nvim`
+([`lua/plugins/gitsigns.lua`](./lua/plugins/gitsigns.lua)) does the same one level
+down, inside the buffer. Changed lines get a marker in the sign column
+(`┃` added/changed, `▁` deleted, `┆` untracked), and everything else is opt-in
+so normal editing stays quiet.
+
+**Diff base** — this is the part that answers "what did I change in the last few
+commits?". By default gitsigns diffs against the *index*, i.e. only unstaged
+edits. `<leader>gb` (or `:GitBase`) switches the base for every buffer:
+
+| Base | Shows |
+|------|-------|
+| Index | Unstaged edits only (default) |
+| `HEAD` | Everything since the last commit |
+| `HEAD~1` / `HEAD~3` / `HEAD~5` | The last N commits *plus* the working tree |
+| Branch point with main/master | Everything this branch added (via `git merge-base`) |
+| Other revision… | Any rev: a tag, a SHA, `origin/main`, … |
+
+`:GitBase HEAD~4` sets a base directly; `<leader>gr` goes back to the index.
+
+**Keys** (`<leader>g`, buffer-local — they exist wherever gitsigns attached):
+
+| Key | Action |
+|-----|--------|
+| `]h` / `[h` | Next / previous hunk (takes a count: `3]h`) |
+| `<leader>gl` | Toggle full-line highlight of changed lines |
+| `<leader>gn` | Toggle highlight of the changed lines' *numbers* |
+| `<leader>gw` | Toggle intra-line word diff |
+| `<leader>gp` | Preview the hunk under the cursor |
+| `<leader>gd` | Diff the whole file against the base in a split |
+| `<leader>gq` / `<leader>gQ` | Hunks of this file / the whole repo → quickfix |
+| `<leader>gB` | Full blame for the current line |
+| `<leader>gc` | Toggle inline blame at end of line |
+| `<leader>gb` / `<leader>gr` | Pick diff base / reset it to the index |
+
+A review pass over the last three commits is then: `<leader>gb` → `HEAD~3`,
+`<leader>gl` to light up the changed lines, `<leader>gQ` to get every changed
+hunk in the repo as a quickfix list, and `]h` to walk them.
+
+Staging and resetting hunks are deliberately *not* bound — they are still
+reachable as `:Gitsigns stage_hunk` / `reset_hunk` if you want them.
 
 ---
 

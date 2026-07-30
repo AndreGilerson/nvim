@@ -11,6 +11,7 @@ return {
         -- Group labels so the popup explains what each prefix is for
         wk.add({
             { "<leader>f", group = "find" },
+            { "<leader>g", group = "git" },
             { "<leader>t", group = "terminal" },
             { "<leader>q", group = "quit" },
         })
